@@ -26,20 +26,40 @@ public class Transaction {
         return montant;
     }
 
+    public void setMontant(double montant) {
+        this.montant = montant;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public java.time.LocalDate getDate() {
         return date;
     }
 
+    public void setDate(java.time.LocalDate date) {
+        this.date = date;
+    }
+
     public Account getCompte() {
         return compte;
     }
 
+    public void setCompte(Account compte) {
+        this.compte = compte;
+    }
+
     public Categorie getCategorie() {
         return categorie;
+    }
+
+    public void setCategorie(Categorie categorie) {
+        this.categorie = categorie;
     }
 
     public void afficherTransaction() {

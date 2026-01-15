@@ -21,12 +21,12 @@ public class TransactionRepository {
     }
 
     public boolean deleteTransaction(String id) {
-        for (Transaction transaction : transactions) {
-            // on aurait pu utiliser == mais equals compare le conntenu des chaînes de
+        for (int i = 0; i < transactions.size(); i++) {
+            // on aurait pu utiliser == mais equals compare le contenu des chaînes de
             // caractères
             // alors que == compare les références en mémoire
-            if (transaction.getId().equals(id)) {
-                transactions.remove(transaction);
+            if (transactions.get(i).getId().equals(id)) {
+                transactions.remove(i);
                 return true;
             }
         }
@@ -42,6 +42,23 @@ public class TransactionRepository {
             }
         }
         return null;
+    }
+
+    public boolean updateTransaction(String id, Transaction transactionModifiee) {
+        // je parcours la liste des transactions
+        for (Transaction transaction : transactions) {
+            // je cherche la transaction avec l'id correspondant
+            if (transaction.getId().equals(id)) {
+                // puis je met à jour les champs de la transaction
+                transaction.setMontant(transactionModifiee.getMontant());
+                transaction.setDescription(transactionModifiee.getDescription());
+                transaction.setDate(transactionModifiee.getDate());
+                transaction.setCompte(transactionModifiee.getCompte());
+                transaction.setCategorie(transactionModifiee.getCategorie());
+                return true;
+            }
+        }
+        return false;
     }
 
     // fonction qui cherche toutes les transactions

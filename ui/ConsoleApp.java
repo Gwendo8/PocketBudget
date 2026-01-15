@@ -55,6 +55,7 @@ public class ConsoleApp {
             System.out.println(1 + " - Ajouter une transaction");
             System.out.println(2 + " - Afficher les transactions");
             System.out.println(3 + " - Supprimer une transaction");
+            System.out.println(4 + " - Modifier une transaction");
             System.out.println(0 + " - Quitter");
             choixUtilisateur = scanner.nextInt();
             switch (choixUtilisateur) {
@@ -110,12 +111,42 @@ public class ConsoleApp {
                 case 3:
                     System.out.println("Suppression d'une transaction");
                     System.out.println("Entrez l'id de la transaction à supprimer : ");
-                    String choixIdUtilisateur = scanner.next();
+                    String choixIdSuppUtilisateur = scanner.next();
                     try {
-                        service.supprimerTransaction(choixIdUtilisateur);
+                        service.supprimerTransaction(choixIdSuppUtilisateur);
                         System.out.println("Transaction supprimée avec succès");
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erreur lors de la suppression de la transaction : " + e.getMessage());
+                    }
+                    compte1.afficherCompte();
+                    break;
+                case 4:
+                    System.out.println("Modification d'une transaction");
+                    System.out.println("Entrez l'id de la transaction à modifier : ");
+                    String choixIdModifUtilisateur = scanner.next();
+                    System.out.println("Entrez le nouveau montant : ");
+                    double nouveauMontant = scanner.nextDouble();
+                    scanner.nextLine();
+                    System.out.println("Entrez la nouvelle description : ");
+                    String nouvelleDescription = scanner.nextLine();
+                    System.out.println("Entrez la nouvelle date (AAAA-MM-JJ) : ");
+                    String nouvelleDateStr = scanner.next();
+                    LocalDate nouvelleDate = LocalDate.parse(nouvelleDateStr);
+                    System.out.println("Choisissez une catégorie (1 pour dépense, 2 pour recette) : ");
+                    int nouveauChoixCategorie = scanner.nextInt();
+                    Categorie nouvelleCategorieChoisie;
+                    if (nouveauChoixCategorie == 1) {
+                        nouvelleCategorieChoisie = categorie1;
+                    } else {
+                        nouvelleCategorieChoisie = categorie2;
+                    }
+                    Transaction transactionModifiee = new Transaction(choixIdModifUtilisateur, nouveauMontant,
+                            nouvelleDescription, nouvelleDate, compte1, nouvelleCategorieChoisie);
+                    try {
+                        service.modifierTransaction(choixIdModifUtilisateur, transactionModifiee);
+                        System.out.println("Transaction modifiée avec succès");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Erreur lors de la modification de la transaction : " + e.getMessage());
                     }
                     compte1.afficherCompte();
                     break;
