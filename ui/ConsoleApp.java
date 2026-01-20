@@ -1,6 +1,7 @@
 package projetPocketBudget.ui;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
 import projetPocketBudget.model.Account;
@@ -56,6 +57,7 @@ public class ConsoleApp {
             System.out.println(2 + " - Afficher les transactions");
             System.out.println(3 + " - Supprimer une transaction");
             System.out.println(4 + " - Modifier une transaction");
+            System.out.println(5 + " - Filtrer les transactions");
             System.out.println(0 + " - Quitter");
             choixUtilisateur = scanner.nextInt();
             switch (choixUtilisateur) {
@@ -149,6 +151,61 @@ public class ConsoleApp {
                         System.out.println("Erreur lors de la modification de la transaction : " + e.getMessage());
                     }
                     compte1.afficherCompte();
+                    break;
+                case 5:
+                    System.out.println(1 + " - Filtrer par type (dépense/recette)");
+                    System.out.println(2 + " - Filtrer par catégorie (nom)");
+                    System.out.println(3 + " - Filtrer par date (année-mois)");
+                    System.out.println(0 + " - Retour");
+                    int choixUtilisateurFiltre = scanner.nextInt();
+                    switch (choixUtilisateurFiltre) {
+                        case 1:
+                            System.out.println(
+                                    "Choisissez le type de catégorie à filtrer (1 pour dépense, 2 pour recette) : ");
+                            int typeCategorieChoisi = scanner.nextInt();
+                            CategorieType typeCategorie;
+                            if (typeCategorieChoisi == 1) {
+                                typeCategorie = CategorieType.DEPENSE;
+                            } else {
+                                typeCategorie = CategorieType.RECETTE;
+                            }
+                            List<Transaction> resultatsType = service.filtrerCategorie(typeCategorie);
+                            if (resultatsType.isEmpty()) {
+                                System.out.println("Aucune transaction trouvée pour ce type.");
+                            } else {
+                                for (Transaction t : resultatsType) {
+                                    t.afficherTransaction();
+                                }
+                            }
+                            break;
+                        case 2:
+                            scanner.nextLine();
+                            System.out.println("Saisissez le nom de la catégorie que vous souhaitez afficher");
+                            String nomCategorieChoisi = scanner.nextLine();
+                            List<Transaction> resultatsCategorie = service.filtrerNomCategorie(nomCategorieChoisi);
+                            if (resultatsCategorie.isEmpty()) {
+                                System.out.println("Aucune transaction trouvée pour ce nom de catégorie.");
+                            } else {
+                                for (Transaction t : resultatsCategorie) {
+                                    t.afficherTransaction();
+                                }
+                            }
+                            break;
+                        case 3:
+                            System.out.println("Entrez l'année : ");
+                            int anneeChoisi = scanner.nextInt();
+                            System.out.println("Entrez le mois (1 à 12) : ");
+                            int moisChoisi = scanner.nextInt();
+                            List<Transaction> resultatsMois = service.filtrerMois(anneeChoisi, moisChoisi);
+                            if (resultatsMois.isEmpty()) {
+                                System.out.println("Aucune transaction trouvée pour cette période.");
+                            } else {
+                                for (Transaction t : resultatsMois) {
+                                    t.afficherTransaction();
+                                }
+                            }
+                            break;
+                    }
                     break;
                 case 0:
                     System.out.println("Au revoir");

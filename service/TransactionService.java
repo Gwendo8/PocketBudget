@@ -1,5 +1,7 @@
 package projetPocketBudget.service;
 
+import java.util.List;
+
 import projetPocketBudget.model.CategorieType;
 import projetPocketBudget.model.Transaction;
 import projetPocketBudget.repository.TransactionRepository;
@@ -120,6 +122,59 @@ public class TransactionService {
             transaction.getCompte().updateSolde(impactSurSolde);
             repo.deleteTransaction(id);
         }
+    }
+
+    // fonction pour filtrer les transactions par type de catégorie
+    public List<Transaction> filtrerCategorie(CategorieType type) {
+        if (type == null) {
+            throw new IllegalArgumentException("Le type de catégorie ne peut pas être nul");
+        }
+        // pour commencer je récupère toutes les transactions
+        // grâce a la méthode findAll() du repository
+        // puis ensuite je transforme la liste en Stream<Transaction> pour pouvoir la
+        // filtrer
+        // stream c'est comme une boucle qui permet de parcourir tous les éléments pour
+        // y appliquer des opérations (comme le filtre ici)
+        List<Transaction> listeFiltreeTransaction = repo.findAll().stream()
+                // ici je donne comme nom "t" à chaque élément du stream (chaque transaction)
+                // t c'est la transaction courante
+                // puis je filtre avec la condition entre parenthèses
+                // je dis que je veux garder uniquement les transactions
+                // dont le type de catégorie est égal au type passé en paramètre
+                // puis ensuite je transforme le stream filtré en liste avec toList()
+                .filter(t -> t.getCategorie().getCategorie() == type).toList();
+        return listeFiltreeTransaction;
+    }
+
+    // fonction pour filtrer les transactions par nom de catégorie
+    public List<Transaction> filtrerNomCategorie(String nomCategorie) {
+        if (nomCategorie == null || nomCategorie.isEmpty()) {
+            throw new IllegalArgumentException("Le nom de la catégorie ne peut pas être nul ou vide");
+        }
+        List<Transaction> listeFiltreTransaction = repo.findAll().stream()
+                // equalsIgnoreCase permet de comparer deux chaînes de caractères
+                // sans tenir compte des majuscules ou minuscules
+                // comparer a equals qui lui ferait la différence entre "Nourriture" et
+                // "nourriture"
+                .filter(t -> t.getCategorie().getNom().equalsIgnoreCase(nomCategorie)).toList();
+        return listeFiltreTransaction;
+    }
+
+    // fonction pour filtrer les transactions par année et mois
+    public List<Transaction> filtrerMois(int annee, int mois) {
+        if (annee < 0) {
+            throw new IllegalArgumentException("L'année ne peut pas être négative");
+        }
+        if (mois < 1 || mois > 12) {
+            throw new IllegalArgumentException("Le mois doit être compris entre 1 et 12");
+        }
+        List<Transaction> listeFiltreTransaction = repo.findAll().stream()
+                // je filtre les transactions dont l'année et le mois correspondent aux
+                // paramètres
+                // getDate() retourne un LocalDate
+                // et ce LocalDate a des méthodes getYear() et getMonthValue()
+                .filter(t -> t.getDate().getYear() == annee && t.getDate().getMonthValue() == mois).toList();
+        return listeFiltreTransaction;
     }
 }
 
