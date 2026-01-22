@@ -34,7 +34,6 @@ public class ConsoleApp {
         compte1.afficherCompte();
         categorie1.afficherCategorie();
         categorie2.afficherCategorie();
-
         // ici j'essaie d'ajouter les transactions en utilisant le service
         try {
             // si toutes les règles sont respectées elles sont ajoutées au repository
@@ -58,6 +57,7 @@ public class ConsoleApp {
             System.out.println(3 + " - Supprimer une transaction");
             System.out.println(4 + " - Modifier une transaction");
             System.out.println(5 + " - Filtrer les transactions");
+            System.out.println(6 + " - Statistiques");
             System.out.println(0 + " - Quitter");
             choixUtilisateur = scanner.nextInt();
             switch (choixUtilisateur) {
@@ -207,6 +207,11 @@ public class ConsoleApp {
                             break;
                     }
                     break;
+                case 6:
+                    System.out.println("Statistiques des transactions");
+                    System.out.println("Total des dépenses : " + service.totalDepense() + " €");
+                    System.out.println("Total des recettes : " + service.totalRecette() + " €");
+                    System.out.println("Bilan : " + service.totalBilan() + " €");
                 case 0:
                     System.out.println("Au revoir");
                     break;

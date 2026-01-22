@@ -176,6 +176,33 @@ public class TransactionService {
                 .filter(t -> t.getDate().getYear() == annee && t.getDate().getMonthValue() == mois).toList();
         return listeFiltreTransaction;
     }
+
+    // fonction pour calculer le total des dépenses
+    public double totalDepense() {
+        double total = 0;
+        for (Transaction transaction : repo.findAll()) {
+            if (transaction.getCategorie().getCategorie() == CategorieType.DEPENSE) {
+                total += transaction.getMontant();
+            }
+        }
+        return total;
+    }
+
+    // fonction pour calculer le total des recettes
+    public double totalRecette() {
+        double total = 0;
+        for (Transaction transaction : repo.findAll()) {
+            if (transaction.getCategorie().getCategorie() == CategorieType.RECETTE) {
+                total += transaction.getMontant();
+            }
+        }
+        return total;
+    }
+
+    // fonction pour calculer le bilan (recettes - dépenses)
+    public double totalBilan() {
+        return totalRecette() - totalDepense();
+    }
 }
 
 // NOTES :
