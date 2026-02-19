@@ -8,6 +8,7 @@ import projetPocketBudget.model.Account;
 import projetPocketBudget.model.Categorie;
 import projetPocketBudget.model.CategorieType;
 import projetPocketBudget.model.Transaction;
+import projetPocketBudget.persistence.TransactionCsvStorage;
 import projetPocketBudget.repository.TransactionRepository;
 import projetPocketBudget.service.TransactionService;
 
@@ -31,21 +32,42 @@ public class ConsoleApp {
         TransactionRepository repo = new TransactionRepository();
         // Création d'un service par rapport au repository
         TransactionService service = new TransactionService(repo);
+        // Création du storage CSV
+        TransactionCsvStorage storage = new TransactionCsvStorage();
+        // Chargement des transactions depuis le CSV au démarrage
+        List<Transaction> loaded = storage.load(null, compte1, categorie1, categorie2);
+        // On charge dans le repo + on met à jour le solde pour refléter les
+        // transactions chargées
+        for (Transaction t : loaded) {
+            repo.addTransaction(t);
+            double impact = t.getMontant();
+            if (t.getCategorie().getCategorie() == CategorieType.DEPENSE) {
+                impact = -impact;
+            }
+            compte1.updateSolde(impact);
+        }
+
         compte1.afficherCompte();
         categorie1.afficherCategorie();
         categorie2.afficherCategorie();
         // ici j'essaie d'ajouter les transactions en utilisant le service
-        try {
-            // si toutes les règles sont respectées elles sont ajoutées au repository
-            service.ajouterTransaction(transaction1);
-            service.ajouterTransaction(transaction2);
-            // exemple de transaction qui ne respecte pas les règles
-            service.ajouterTransaction(transaction3);
-            // sinon une exception est levée
-        } catch (IllegalArgumentException e) {
-            // je capture l'exception et j'affiche le message d'erreur que j'ai défini dans
-            // le service
-            System.out.println("Erreur lors de l'ajout de la transaction : " + e.getMessage());
+        // On ajoute les transactions de démo seulement si le CSV était vide (sinon
+        // doublons)
+        if (repo.findAll().isEmpty()) {
+            try {
+                // si toutes les règles sont respectées elles sont ajoutées au repository
+                service.ajouterTransaction(transaction1);
+                service.ajouterTransaction(transaction2);
+                // exemple de transaction qui ne respecte pas les règles
+                service.ajouterTransaction(transaction3);
+                // sinon une exception est levée
+                // On sauvegarde après l'initialisation de démo
+                storage.save(repo.findAll(), null);
+            } catch (IllegalArgumentException e) {
+                // je capture l'exception et j'affiche le message d'erreur que j'ai défini dans
+                // le service
+                System.out.println("Erreur lors de l'ajout de la transaction : " + e.getMessage());
+            }
         }
 
         Scanner scanner = new Scanner(System.in);
@@ -95,6 +117,10 @@ public class ConsoleApp {
                     try {
                         service.ajouterTransaction(nouvelleTransaction);
                         System.out.println("Transaction ajoutée avec succès");
+
+                        // ✅ Sauvegarde après ajout réussi
+                        storage.save(repo.findAll(), null);
+
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erreur lors de l'ajout de la transaction : " + e.getMessage());
                     }
@@ -117,6 +143,9 @@ public class ConsoleApp {
                     try {
                         service.supprimerTransaction(choixIdSuppUtilisateur);
                         System.out.println("Transaction supprimée avec succès");
+                        // Sauvegarde après suppression réussie
+                        storage.save(repo.findAll(), null);
+
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erreur lors de la suppression de la transaction : " + e.getMessage());
                     }
@@ -147,6 +176,9 @@ public class ConsoleApp {
                     try {
                         service.modifierTransaction(choixIdModifUtilisateur, transactionModifiee);
                         System.out.println("Transaction modifiée avec succès");
+                        // Sauvegarde après modification réussie
+                        storage.save(repo.findAll(), null);
+
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erreur lors de la modification de la transaction : " + e.getMessage());
                     }
@@ -212,6 +244,7 @@ public class ConsoleApp {
                     System.out.println("Total des dépenses : " + service.totalDepense() + " €");
                     System.out.println("Total des recettes : " + service.totalRecette() + " €");
                     System.out.println("Bilan : " + service.totalBilan() + " €");
+                    break;
                 case 0:
                     System.out.println("Au revoir");
                     break;
